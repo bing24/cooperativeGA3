@@ -21,7 +21,7 @@ classdef InitializePopulation < handle
         minimumFitness
         bestIndividualIndex
         newPopulation
-        gene_length=20;
+        gene_length=30;
         start_point=14;
         end_point=124;
         initialx
@@ -35,6 +35,8 @@ classdef InitializePopulation < handle
         cost_dis;
         cost_dis_charging;
         figure_handle
+        battery_life=4;
+        record_length;
     end
     
     methods
@@ -56,6 +58,18 @@ classdef InitializePopulation < handle
             end
            
         end % function
+
+
+        function addchromo(obj, number_of_chromos_to_add,chromos)
+            if nargin==1
+                number_of_chromos_to_add=1;
+            end
+            for i=1:number_of_chromos_to_add
+                obj.chromo=[obj.chromo, chromo(chromos)];
+                
+            end
+        end % function
+
         function  Evaluating (obj,map,gaConfig)
 
             % Clear memory from last iteration
@@ -68,44 +82,30 @@ classdef InitializePopulation < handle
             obj.charging_enough=[];
             % Generate locations for working robots and charging robots
             for j=1:gaConfig.PopulationSize
-                
-                for i=1:obj.gene_length
-                    if i==1
-                        obj.currentx(i,j)=obj.initialx;
-                        obj.currenty(i,j)=obj.initialy;
-                    elseif obj.chromo(i,j)==1
-                        if obj.currenty(i-1,j)==obj.ybordermax
-                            obj.currentx(i,j)=obj.currentx(i-1,j);
-                            obj.currenty(i,j)=obj.currenty(i-1,j);
-                        else
-                            obj.currentx(i,j)=obj.currentx(i-1,j);
-                            obj.currenty(i,j)=obj.currenty(i-1,j)+1;
-                        end
-                    elseif obj.chromo(i,j)==2
-                        if obj.currentx(i-1,j)==obj.xbordermin
-                            obj.currentx(i,j)=obj.currentx(i-1,j);
-                            obj.currenty(i,j)=obj.currenty(i-1,j);
-                        else
-                            obj.currentx(i,j)=obj.currentx(i-1,j)-1;
-                            obj.currenty(i,j)=obj.currenty(i-1,j);
-                        end
-                    elseif obj.chromo(i,j)==3
-                        if obj.currenty(i-1,j)==obj.ybordermin
-                            obj.currentx(i,j)=obj.currentx(i-1,j);
-                            obj.currenty(i,j)=obj.currenty(i-1,j);
-                        else
-                            obj.currentx(i,j)=obj.currentx(i-1,j);
-                            obj.currenty(i,j)=obj.currenty(i-1,j)-1;
-                        end
-                    elseif obj.chromo(i,j)==4
-                        if obj.currentx(i-1,j)==obj.xbordermax
-                            obj.currentx(i,j)=obj.currentx(i-1,j);
-                            obj.currenty(i,j)=obj.currenty(i-1,j);
-                        else
-                            obj.currentx(i,j)=obj.currentx(i-1,j)+1;
-                            obj.currenty(i,j)=obj.currenty(i-1,j);
-                        end
-                    elseif obj.chromo(i,j)==0
+                obj.currentx(1,j)=obj.initialx;
+                obj.currenty(1,j)=obj.initialy;
+                for i=2:size(obj.chromo,1)
+    
+                    if obj.chromo(i-1,j)==1
+                        obj.currentx(i,j)=obj.currentx(i-1,j);
+                        obj.currenty(i,j)=obj.currenty(i-1,j)+1;
+                        
+                    elseif obj.chromo(i-1,j)==2
+                       
+                        obj.currentx(i,j)=obj.currentx(i-1,j)-1;
+                        obj.currenty(i,j)=obj.currenty(i-1,j);
+                        
+                    elseif obj.chromo(i-1,j)==3
+                        
+                        obj.currentx(i,j)=obj.currentx(i-1,j);
+                        obj.currenty(i,j)=obj.currenty(i-1,j)-1;
+                        
+                    elseif obj.chromo(i-1,j)==4
+                        
+                        obj.currentx(i,j)=obj.currentx(i-1,j)+1;
+                        obj.currenty(i,j)=obj.currenty(i-1,j);
+                        
+                    elseif obj.chromo(i-1,j)==0
                         obj.currentx(i,j)=obj.currentx(i-1,j);
                         obj.currenty(i,j)=obj.currenty(i-1,j);
                     end
@@ -115,21 +115,19 @@ classdef InitializePopulation < handle
             % Charging robots locations
             for j=1:gaConfig.PopulationSize
                 count=1;
-                if size(nonzeros(obj.chromo(:,j)),1)==obj.gene_length
-                    obj.charging_locationx(:,j)=0;
-                    obj.charging_locationy(:,j)=0;
-                else
-                    for i=1:obj.gene_length
-                    
-                        if obj.chromo(i,j)==0
-                            obj.charging_locationx(count,j)=obj.currentx(i,j);
-                            obj.charging_locationy(count,j)=obj.currenty(i,j);
-                            count=count+1;
-                        end
+                ff=1;
+                while sum(obj.chromo(1:ff,j))~=sum(obj.chromo(:,j))
+                    ff=ff+1;
+                end
+                for i=1:ff               
+                    if obj.chromo(i,j)==0 && obj.chromo(i-1,j)~=0
+                        obj.charging_locationx(count,j)=obj.currentx(i,j);
+                        obj.charging_locationy(count,j)=obj.currenty(i,j);
+                        count=count+1;
                     end
                 end
             end
-            obj.nodes_dis_charging=zeros(size(obj.charging_locationx,1)-1,gaConfig.PopulationSize);
+            
             obj.cost_dis=[];
             % Calculate Euclidean between each nodes
             for j= 1: gaConfig.PopulationSize
@@ -223,9 +221,9 @@ classdef InitializePopulation < handle
         end
         
         function Mutating(obj,gaConfig,randIndexes)
-            indexes = rand(size(obj.chromo))<gaConfig.mutationProbability  ;               % Index for Mutations
+            indexes = rand(size(obj.chromo))<gaConfig.mutationProbability;                 % Index for Mutations
             
-            temp=round(4*rand(obj.gene_length,gaConfig.PopulationSize));
+            temp=round(4*rand(size(obj.chromo,1),gaConfig.PopulationSize));
             
             %fix the starting point finishing point 
             % indexes(1,:)=0;

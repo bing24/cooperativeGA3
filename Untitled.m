@@ -1,38 +1,19 @@
-clear all;
-close all;
 
-load shou
-%cooperative part
-figure
-contour(map.matrix,1,'black','linewidth',5)
-hold on
-plot(map.mission_location(:,1),map.mission_location(:,2),'.')
-for i=1:generation
-    
-   for agent_number = 1:number_of_spicies
-       % population(agent_number)= InitializePopulation(map, gaConfig);
-       Evaluating(population(agent_number),map,gaConfig);
-   end
-        EvaluatingAll(optimizor,population,map,gaConfig,chargers,randIndexes);
-   for agent_number = 1:number_of_spicies
-        population(agent_number).fitness=optimizor.fitness;
-        population(agent_number).bestIndividualIndex=optimizor.bestIndividualIndex;
-   end
-   for agent_number = 1:number_of_spicies
-        Selecting(population(agent_number),gaConfig,0.5);
-   end
-        % Mutate
-        randIndexes = ceil(rand(1,gaConfig.numberOfReplications).*gaConfig.PopulationSize);
-   for agent_number = 1:number_of_spicies
-        Mutating(population(agent_number),gaConfig,randIndexes)
-   end
-   plotall(optimizor,population,chargers,gaConfig)
-   drawnow
-end
+obj=population(2);
 
-Evaluating(population(agent_number),map,gaConfig);
-plotall(optimizor,population,chargers,gaConfig)
-toc
-% obj=population;
 
-obj=optimizor;
+ j=37;
+                count=1;
+                ff=1;
+                while sum(obj.chromo(1:ff,j))~=sum(obj.chromo(:,j))
+                    ff=ff+1;
+                end
+                for i=1:ff               
+                    if obj.chromo(i,j)==0 && obj.chromo(i-1,j)~=0
+                        obj.charging_locationx(count,j)=obj.currentx(i,j);
+                        obj.charging_locationy(count,j)=obj.currenty(i,j);
+                        count=count+1;
+                        i
+                    end
+                end
+     

@@ -6,7 +6,7 @@ classdef Configuration
         NumberofWorkers=5;
         MaximumIterations = 50; % Maximum of iterations to perform in the GA. Default value: 50.
         CrossoverRate = 0.8; % Crossover probability of the GA. Default value: 0.8 (80%).
-        MutationRate = 0.2 % Mutation probability of the GA. Default value: 0.03 (3%).
+        MutationRate = 0 % Mutation probability of the GA. Default value: 0.03 (3%).
         PopulationSize = 50; % Population size in the GA. Default value: 50.
         mutationProbability
         numberOfReplications 

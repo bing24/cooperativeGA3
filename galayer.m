@@ -3,7 +3,7 @@ classdef galayer < handle
     properties
         agent_number
         charger_number
-        gene_length=20;
+        gene_length=30;
         fitness
         distance_working
         distance_charging
@@ -20,6 +20,7 @@ classdef galayer < handle
         record_dis_working;
         record_cover;
         record_dis_charging;
+        mapMatrix
     end
     
     methods
@@ -156,9 +157,9 @@ classdef galayer < handle
                 elseif length(temp)<length(tempp)
                     tempp=tempp(1:end-1);
                 end
-                
+                temp(1)=sub(j).battery_life;
                 if isempty(tempp)
-                    sub(j).charging_enough(1,i)=0.001; % adding penalty to zero charging trajectory
+                    sub(j).charging_enough(1,i)=0.01; % adding penalty to zero charging trajectory
                 else
                     sub(j).charging_enough(1,i)=sum(temp>tempp)/length(temp);
                 end
@@ -177,7 +178,8 @@ classdef galayer < handle
 
                 optimizor.charging_enough(i)=sum(charging_enough_temp)/optimizor.agent_number;
                 optimizor.judger(i)=sum(judger_temp)/gaConfig.NumberofChargers;
-                optimizor.fitness(i)=(optimizor.distance_working(i)+optimizor.distance_charging(i))/optimizor.cover(i)/optimizor.charging_enough(i);
+                optimizor.fitness(i)=(optimizor.distance_working(i)+optimizor.distance_charging(i));
+                % optimizor.fitness(i)=(optimizor.distance_working(i)+optimizor.distance_charging(i))/optimizor.cover(i)/optimizor.charging_enough(i);
                 % optimizor.fitness(i)=(optimizor.distance_working(i)+optimizor.distance_charging(i))/optimizor.cover(i);
                 % optimizor.fitness(i)=(optimizor.distance_working(i)+optimizor.distance_charging(i))/optimizor.cover(i)/optimizor.charging_enough(i)*optimizor.judger(i);
             end
@@ -462,6 +464,7 @@ classdef galayer < handle
             for charger_number = 1:gaConfig.NumberofChargers
                 Ploting(chargers(charger_number),obj)
             end
+            contour(obj.mapMatrix,1,'black','linewidth',5)
             figure (4)
             if ishandle(obj.figure_handle3)
                 delete(obj.figure_handle3)
