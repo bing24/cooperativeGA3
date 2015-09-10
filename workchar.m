@@ -46,7 +46,8 @@ for i= 1:number_of_spicies
       if charge ==1
         zz=4-battery;
         battery=4;
-        record=cat(1,record,zeros(zz,1));
+        % record=cat(1,record,zeros(zz,1));
+        record=cat(1,record,0);
          
       end
     b(kk)=battery;
@@ -57,10 +58,10 @@ for i= 1:number_of_spicies
 end
 
 %cooperative part
-% figure
-% contour(map.matrix,1,'black','linewidth',5)
-% hold on
-% plot(map.mission_location(:,1),map.mission_location(:,2),'.')
+figure
+contour(map.matrix,1,'black','linewidth',5)
+hold on
+plot(map.mission_location(:,1),map.mission_location(:,2),'.')
 generation=100;
 for i=1:generation
     
